@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SIGAP</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        /* Reset margin dan cegah scroll pada body agar terasa seperti aplikasi */
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            font-family: sans-serif;
+            overflow: hidden; 
+            background-color: #f4f6f9;
+        }
+
+        /* Desain Layar Instalasi yang berada di tengah */
+        #install-screen { 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100%; 
+            text-align: center; 
+            padding: 20px; 
+            box-sizing: border-box;
+        }
+
+        /* --- CSS UNTUK LOADING SPINNER --- */
+        #loading-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .spinner {
+            border: 4px solid rgba(0, 123, 255, 0.2);
+            border-left-color: #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+
+        /* --- CSS TOMBOL --- */
+        .btn {
+            padding: 12px 24px; 
+            font-size: 16px; 
+            font-weight: bold;
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 15px;
+            display: none; /* Disembunyikan default */
+        }
+        #installBtn { background-color: #28a745; }
+        #installBtn:active { background-color: #1e7e34; }
+        
+        #openAppBtn { background-color: #007bff; }
+        #openAppBtn:active { background-color: #0056b3; }
+
+        /* Container Aplikasi (Iframe) */
+        #app-content { 
+            display: none; 
+            width: 100%; 
+            height: 100%; 
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* Teks Status */
+        #status-text { margin-top: 15px; color: #333; font-size: 15px; line-height: 1.5; }
+        .highlight { font-weight: bold; color: #28a745; }
+        #info-text { margin-top: 0px; color: #333; font-size: 15px; line-height: 1.5; }
+        
+        /* TAMBAHAN: Menghilangkan margin bawaan H2 dan P agar jaraknya rapat */
+        h2 { margin-bottom: 5px; margin-top: 10px; }
+        #info-text p { margin-top: 0; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <!-- LAYAR SAAT DIBUKA DI BROWSER -->
+    <div id="install-screen">
+        <img src="smaktupar-small.png" alt="Logo" style="max-width: 120px; margin-bottom: 15px;">
+        <h2>SIGAP</h2>
+        <div id="info-text">
+            <p>Sistem Integrasi<br>Gerakan Disiplin dan Pembinaan</p>
+        </div>        
+        <div id="status-text">
+            <p>Aplikasi ini hanya dapat digunakan setelah diinstal ke perangkat Anda.</p>
+        </div>
+
+        <!-- Indikator Loading -->
+        <div id="loading-indicator">
+            <div class="spinner"></div>
+            <p style="color: gray; font-size: 14px;">Memeriksa status aplikasi...</p>
+        </div>
+
+        <!-- Tombol Instal & Buka -->
+        <button id="installBtn" class="btn">Instal Aplikasi</button>
+        <button id="openAppBtn" class="btn">Petunjuk Penggunaan</button>
+
+        <!-- TAMBAHAN: Tombol Tutup Browser -->
+        <button id="closeBrowserBtn" class="btn" style="background-color: #dc3545; display: none;">Tutup Halaman Ini</button>
+
+        <p id="ios-note" style="display: none; color: gray; font-size: 13px; margin-top: 20px;">
+            Pengguna iOS: Tekan ikon "Share" di bawah, lalu pilih "Add to Home Screen".
+        </p>
+    </div>
+
+    <!-- LAYAR APLIKASI UTAMA (SETELAH DIINSTAL) -->
+    <div id="app-content">
+        <iframe src="https://script.google.com/macros/s/AKfycbwZ07mV3Ut5xUmdI95xotp1CvfLdjVhZRMP8e-Sox-47LmLDiDWBVs3g7-y7RBZhD_7Pg/exec" allow="camera; microphone"></iframe>
+    </div>
+
+    <script>
+        // 1. Daftarkan Service Worker (dengan pengecekan protokol untuk menghindari error di Sandbox/Preview)
+        if ('serviceWorker' in navigator) {
+            if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+                navigator.serviceWorker.register('sw.js')
+                    .then(() => console.log('Service Worker Registered'))
+                    .catch((err) => console.warn('Pendaftaran Service Worker gagal (biasa terjadi di preview):', err));
+            } else {
+                console.warn('Pendaftaran Service Worker dilewati karena protokol tidak didukung:', window.location.protocol);
+            }
+        }
+
+        // Referensi Elemen DOM
+        const installScreen = document.getElementById('install-screen');
+        const appContent = document.getElementById('app-content');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const installBtn = document.getElementById('installBtn');
+        const openAppBtn = document.getElementById('openAppBtn');
+        const closeBrowserBtn = document.getElementById('closeBrowserBtn'); // TAMBAHAN
+        const statusText = document.getElementById('status-text');
+        const iosNote = document.getElementById('ios-note');
+
+        // Fungsi Deteksi iOS
+        const isIos = () => {
+          const userAgent = window.navigator.userAgent.toLowerCase();
+          return /iphone|ipad|ipod/.test(userAgent);
+        }
+
+        // 2. Cek apakah sudah dibuka dari aplikasi (Standalone)
+        function checkDisplayMode() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            if (isStandalone) {
+                installScreen.style.display = 'none';
+                appContent.style.display = 'block';
+                return true; // Berhenti di sini jika sudah mode aplikasi
+            }
+            return false;
+        }
+
+        // Jalankan logika hanya jika BUKAN mode aplikasi (berarti sedang buka di browser biasa)
+        if (!checkDisplayMode()) {
+            let promptFired = false;
+            let deferredPrompt;
+            let installTimeout; // Tambahkan variabel timer
+
+            // Tangkap event sebelum instalasi muncul
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                promptFired = true;
+                deferredPrompt = e;
+                
+                // Hentikan timer pesan "sudah terinstal" agar tidak muncul berkedip
+                clearTimeout(installTimeout); 
+                
+                // Sembunyikan loading, tampilkan tombol instal
+                loadingIndicator.style.display = 'none';
+                installBtn.style.display = 'inline-block';
+                statusText.innerHTML = '<p>Aplikasi siap diinstal ke perangkat Anda.</p>';
+            });
+
+            // Logika Timeout (Diperpanjang menjadi 3 detik / 3000ms)
+            // Jika dalam 3 detik event beforeinstallprompt tidak muncul, asumsikan sudah terinstal
+            installTimeout = setTimeout(() => {
+                if (!promptFired) {
+                    loadingIndicator.style.display = 'none';
+                    
+                    if (isIos()) {
+                        // Jika iOS, tampilkan panduan manual
+                        iosNote.style.display = 'block';
+                    } else {
+                        // Jika Android/PC dan tidak ada prompt, asumsikan sudah terinstal
+                        statusText.innerHTML = '<p class="highlight">Aplikasi sepertinya sudah terinstal!</p><p style="font-size: 13px;">Silakan tutup halaman browser ini dan buka dari layar beranda (Home Screen) Anda.</p>';
+                        openAppBtn.style.display = 'inline-block';
+                    }
+                }
+            }, 5000); // 5000 milidetik = 5 detik
+
+            // Event Klik Tombol Instal
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if(outcome === 'accepted') {
+                        // Ubah tampilan saat proses instalasi berjalan di background
+                        installBtn.style.display = 'none';
+                        openAppBtn.style.display = 'none'; // Sembunyikan tombol lain
+                        loadingIndicator.style.display = 'flex'; // Munculkan loading spinner lagi
+                        loadingIndicator.querySelector('p').innerText = 'Sedang menginstal aplikasi...';
+                        statusText.innerHTML = '<p class="highlight" style="color: #007bff;">Sedang memproses instalasi...</p><p style="font-size: 13px;">Mohon tunggu sebentar hingga selesai.</p>';
+                    }
+                    deferredPrompt = null;
+                }
+            });
+
+            // TAMBAHAN: TANGKAP EVENT SAAT INSTALASI BENAR-BENAR SELESAI
+            window.addEventListener('appinstalled', (evt) => {
+                loadingIndicator.style.display = 'none'; // Matikan loading spinner
+                statusText.innerHTML = '<p class="highlight">Aplikasi berhasil diinstal!</p><p style="font-size: 13px;">Silakan tutup halaman browser ini dan buka SIGAP dari Layar Beranda (Home Screen) HP Anda.</p>';
+                closeBrowserBtn.style.display = 'inline-block'; // Munculkan tombol tutup
+            });
+
+            // TAMBAHAN: Event Klik Tombol Tutup Browser
+            closeBrowserBtn.addEventListener('click', () => {
+                window.close(); // Mencoba menutup tab otomatis
+                // Fallback jika keamanan browser memblokir penutupan otomatis
+                setTimeout(() => {
+                    alert("Silakan tutup tab/halaman browser ini secara manual (tekan tombol Back/Kembali pada HP Anda).");
+                }, 300);
+            });
+
+            // Event Klik Tombol Buka Aplikasi (Pemberitahuan)
+            openAppBtn.addEventListener('click', () => {
+                alert("Setelah aplikasi berhasil diinstal silakan kembali ke Menu Utama (Home Screen) HP Anda, cari ikon 'SIGAP' dan buka dari sana.");
+            });
+        }
+    </script>
+</body>
+</html>
