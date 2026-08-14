@@ -1,4 +1,4 @@
-# GMS LIVE TANJUNG
+# GMS Live Tanjung
 ## Praise and Worship Scheduler
 
 ### Logs:
