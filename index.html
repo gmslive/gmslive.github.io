@@ -226,7 +226,7 @@
             // TAMBAHAN: TANGKAP EVENT SAAT INSTALASI BENAR-BENAR SELESAI
             window.addEventListener('appinstalled', (evt) => {
                 loadingIndicator.style.display = 'none'; // Matikan loading spinner
-                statusText.innerHTML = '<p class="highlight">Aplikasi berhasil diinstal!</p><p style="font-size: 13px;">Silakan tutup halaman browser ini dan buka SIGAP dari Layar Beranda (Home Screen) HP Anda.</p>';
+                statusText.innerHTML = '<p class="highlight">Aplikasi berhasil diinstal!</p><p style="font-size: 13px;">Silakan tutup halaman browser ini dan buka 'GMS Tanjung' dari Layar Beranda (Home Screen) HP Anda.</p>';
                 closeBrowserBtn.style.display = 'inline-block'; // Munculkan tombol tutup
             });
 
@@ -241,7 +241,7 @@
 
             // Event Klik Tombol Buka Aplikasi (Pemberitahuan)
             openAppBtn.addEventListener('click', () => {
-                alert("Setelah aplikasi berhasil diinstal silakan kembali ke Menu Utama (Home Screen) HP Anda, cari ikon 'SIGAP' dan buka dari sana.");
+                alert("Setelah aplikasi berhasil diinstal silakan kembali ke Menu Utama (Home Screen) HP Anda, cari ikon 'GMS Tanjung' dan buka dari sana.");
             });
         }
     </script>
