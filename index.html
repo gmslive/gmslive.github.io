@@ -6,14 +6,15 @@
     <title>GMS Live Tanjung</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        /* Reset margin dan cegah scroll pada body agar terasa seperti aplikasi */
+        /* Reset margin. overflow-y auto di body agar konten tidak terpotong di layar kecil / font besar */
         html, body { 
             margin: 0; 
             padding: 0; 
             width: 100%; 
             height: 100%; 
             font-family: sans-serif;
-            overflow: hidden; 
+            overflow-y: auto;
+            overflow-x: hidden;
             background-color: #f4f6f9;
         }
 
@@ -23,7 +24,7 @@
             flex-direction: column; 
             justify-content: center; 
             align-items: center; 
-            height: 100%; 
+            min-height: 100%; 
             text-align: center; 
             padding: 20px; 
             box-sizing: border-box;
@@ -84,15 +85,12 @@
         }
 
         /* Teks Status */
-        #status-text { margin-top: 15px; color: #333; font-size: 15px; line-height: 1.5; }
-        .highlight { font-weight: bold; color: #28a745; }
-        #info-text { margin-top: 0px; color: #333; font-size: 15px; line-height: 1.5; }
-        #dev-text { margin-top: 0px; color: #333; font-size: 12px; line-height: 1.5; }
-        
-        /* TAMBAHAN: Menghilangkan margin bawaan H2 dan P agar jaraknya rapat */
         h2 { margin-bottom: 5px; margin-top: 10px; }
-        #info-text p { margin-top: 0; margin-bottom: 5px; }
-        #dev-text p { margin-top: 0; margin-bottom: 5px; }
+        #info-text { font-size: 15px; }
+        #dev-text { font-size: 12px; }
+        #status-text { margin-top: 15px; color: #333; font-size: 15px; line-height: 1.5; }   
+        .meta-text { margin: 0 0 5px; color: #333; line-height: 1.5; }
+        .highlight { font-weight: bold; color: #28a745; } 
     </style>
 </head>
 <body>
@@ -101,12 +99,8 @@
     <div id="install-screen">
         <img src="gms-live-app.png" alt="Logo" style="max-width: 120px; margin-bottom: 15px;">
         <h2>GMS Live Tanjung</h2>
-        <div id="info-text">
-            <p>Praise and Worship Scheduler</p>
-        </div>
-        <div id="dev-text">
-            <p>Developed by Bamz/PAW Team</p>
-        </div>
+        <div id="info-text" class="meta-text">Praise and Worship Scheduler</div>
+        <div id="dev-text" class="meta-text">Developed by Bamz/PAW Team</div>
         <div id="status-text">
             <p>Aplikasi ini hanya dapat digunakan setelah diinstal ke perangkat Anda.</p>
         </div>
@@ -120,12 +114,14 @@
         <!-- Tombol Instal & Buka -->
         <button id="installBtn" class="btn">Instal Aplikasi</button>
         <button id="openAppBtn" class="btn">Petunjuk Penggunaan</button>
-
-        <!-- TAMBAHAN: Tombol Tutup Browser -->
-        <button id="closeBrowserBtn" class="btn" style="background-color: #dc3545; display: none;">Tutup Halaman Ini</button>
+        <button id="closeBrowserBtn" class="btn" style="background-color: #dc3545;">Tutup Halaman Ini</button>
 
         <p id="ios-note" style="display: none; color: gray; font-size: 13px; margin-top: 20px;">
             Pengguna iOS: Tekan ikon "Share" di bawah, lalu pilih "Add to Home Screen".
+        </p>
+
+        <p id="unsupported-note" style="display: none; color: gray; font-size: 13px; margin-top: 20px;">
+            Browser Anda mungkin tidak mendukung instalasi otomatis. Untuk hasil terbaik, buka tautan ini menggunakan Chrome atau Edge.
         </p>
     </div>
 
@@ -152,14 +148,28 @@
         const loadingIndicator = document.getElementById('loading-indicator');
         const installBtn = document.getElementById('installBtn');
         const openAppBtn = document.getElementById('openAppBtn');
-        const closeBrowserBtn = document.getElementById('closeBrowserBtn'); // TAMBAHAN
+        const closeBrowserBtn = document.getElementById('closeBrowserBtn');
         const statusText = document.getElementById('status-text');
         const iosNote = document.getElementById('ios-note');
+        const unsupportedNote = document.getElementById('unsupported-note');
 
-        // Fungsi Deteksi iOS
+        // Fungsi Deteksi iOS (termasuk iPadOS 13+, yang UA-nya menyamar sebagai Mac)
         const isIos = () => {
           const userAgent = window.navigator.userAgent.toLowerCase();
-          return /iphone|ipad|ipod/.test(userAgent);
+          const isIphoneOrIpod = /iphone|ipod/.test(userAgent);
+          const isIpadUA = /ipad/.test(userAgent);
+          const isIpadOSDesktopUA = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+          return isIphoneOrIpod || isIpadUA || isIpadOSDesktopUA;
+        }
+
+        // Fungsi Deteksi dukungan event beforeinstallprompt (Chrome/Edge/Android WebView, dsb)
+        // Browser seperti Firefox dan Safari desktop tidak pernah memicu event ini,
+        // jadi ketiadaannya TIDAK selalu berarti "sudah terinstal".
+        const supportsInstallPrompt = () => {
+          const ua = window.navigator.userAgent.toLowerCase();
+          const isFirefox = /firefox/.test(ua);
+          const isSafariDesktop = /safari/.test(ua) && !/chrome|chromium|crios|edg/.test(ua) && !isIos();
+          return !(isFirefox || isSafariDesktop);
         }
 
         // 2. Cek apakah sudah dibuka dari aplikasi (Standalone)
@@ -177,68 +187,80 @@
         if (!checkDisplayMode()) {
             let promptFired = false;
             let deferredPrompt;
-            let installTimeout; // Tambahkan variabel timer
+            let installTimeout;
+            let installedFallbackTimeout;
 
             // Tangkap event sebelum instalasi muncul
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 promptFired = true;
                 deferredPrompt = e;
-                
-                // Hentikan timer pesan "sudah terinstal" agar tidak muncul berkedip
-                clearTimeout(installTimeout); 
-                
-                // Sembunyikan loading, tampilkan tombol instal
+
+                clearTimeout(installTimeout);
+
                 loadingIndicator.style.display = 'none';
                 installBtn.style.display = 'inline-block';
                 statusText.innerHTML = '<p>Aplikasi siap diinstal ke perangkat Anda.</p>';
             });
 
-            // Logika Timeout (Diperpanjang menjadi 3 detik / 3000ms)
-            // Jika dalam 3 detik event beforeinstallprompt tidak muncul, asumsikan sudah terinstal
+            // Logika Timeout: 5 detik menunggu beforeinstallprompt
             installTimeout = setTimeout(() => {
                 if (!promptFired) {
                     loadingIndicator.style.display = 'none';
-                    
+
                     if (isIos()) {
-                        // Jika iOS, tampilkan panduan manual
+                        // Jika iOS, tampilkan panduan manual (event ini memang tidak ada di iOS)
                         iosNote.style.display = 'block';
+                    } else if (!supportsInstallPrompt()) {
+                        // Browser yang memang tidak mendukung prompt instalasi otomatis
+                        statusText.innerHTML = '<p>Browser Anda tidak mendukung instalasi otomatis.</p>';
+                        unsupportedNote.style.display = 'block';
                     } else {
-                        // Jika Android/PC dan tidak ada prompt, asumsikan sudah terinstal
-                        statusText.innerHTML = '<p class="highlight">Aplikasi sepertinya sudah terinstal!</p><p style="font-size: 13px;">Silakan tutup halaman browser ini dan buka dari layar beranda (Home Screen) Anda.</p>';
+                        // Kemungkinan besar sudah terinstal, tapi ini asumsi, bukan kepastian
+                        statusText.innerHTML = '<p class="highlight">Aplikasi sepertinya sudah terinstal!</p><p style="font-size: 13px;">Jika belum, coba muat ulang halaman ini. Jika sudah, silakan tutup halaman browser ini dan buka dari layar beranda (Home Screen) Anda.</p>';
                         openAppBtn.style.display = 'inline-block';
                     }
                 }
-            }, 5000); // 5000 milidetik = 5 detik
+            }, 5000);
 
             // Event Klik Tombol Instal
             installBtn.addEventListener('click', async () => {
                 if (deferredPrompt) {
                     deferredPrompt.prompt();
                     const { outcome } = await deferredPrompt.userChoice;
-                    if(outcome === 'accepted') {
-                        // Ubah tampilan saat proses instalasi berjalan di background
+                    if (outcome === 'accepted') {
                         installBtn.style.display = 'none';
-                        openAppBtn.style.display = 'none'; // Sembunyikan tombol lain
-                        loadingIndicator.style.display = 'flex'; // Munculkan loading spinner lagi
+                        openAppBtn.style.display = 'none';
+                        loadingIndicator.style.display = 'flex';
                         loadingIndicator.querySelector('p').innerText = 'Sedang menginstal aplikasi...';
                         statusText.innerHTML = '<p class="highlight" style="color: #007bff;">Sedang memproses instalasi...</p><p style="font-size: 13px;">Mohon tunggu sebentar hingga selesai.</p>';
+
+                        // Fallback: jika event 'appinstalled' tidak kunjung terpicu dalam 10 detik,
+                        // jangan biarkan user terjebak di layar loading selamanya.
+                        installedFallbackTimeout = setTimeout(() => {
+                            loadingIndicator.style.display = 'none';
+                            statusText.innerHTML = '<p class="highlight">Instalasi mungkin sudah selesai.</p><p style="font-size: 13px;">Silakan periksa Layar Beranda (Home Screen) HP Anda. Jika belum ada, coba ulangi proses instalasi.</p>';
+                            closeBrowserBtn.style.display = 'inline-block';
+                        }, 10000);
+                    } else {
+                        // Pengguna membatalkan / menolak prompt instalasi
+                        statusText.innerHTML = '<p>Instalasi dibatalkan.</p><p style="font-size: 13px;">Muat ulang halaman ini jika ingin mencoba menginstal lagi.</p>';
                     }
                     deferredPrompt = null;
                 }
             });
 
-            // TAMBAHAN: TANGKAP EVENT SAAT INSTALASI BENAR-BENAR SELESAI
-            window.addEventListener('appinstalled', (evt) => {
-                loadingIndicator.style.display = 'none'; // Matikan loading spinner
+            // TANGKAP EVENT SAAT INSTALASI BENAR-BENAR SELESAI
+            window.addEventListener('appinstalled', () => {
+                clearTimeout(installedFallbackTimeout);
+                loadingIndicator.style.display = 'none';
                 statusText.innerHTML = '<p class="highlight">Aplikasi berhasil diinstal!</p><p style="font-size: 13px;">Silakan tutup halaman browser ini dan buka ikon PAW dari Layar Beranda (Home Screen) HP Anda.</p>';
-                closeBrowserBtn.style.display = 'inline-block'; // Munculkan tombol tutup
+                closeBrowserBtn.style.display = 'inline-block';
             });
 
-            // TAMBAHAN: Event Klik Tombol Tutup Browser
+            // Event Klik Tombol Tutup Browser
             closeBrowserBtn.addEventListener('click', () => {
-                window.close(); // Mencoba menutup tab otomatis
-                // Fallback jika keamanan browser memblokir penutupan otomatis
+                window.close();
                 setTimeout(() => {
                     alert("Silakan tutup tab/halaman browser ini secara manual (tekan tombol Back/Kembali pada HP Anda).");
                 }, 300);
