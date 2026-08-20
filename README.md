@@ -7,17 +7,16 @@
 #### 2.0
 - Shepard role added
 - Important links added
-- In-App camshot
-- Edit profile and avatar
-- MD can edit songlist
-- Record link by evaluation
+- In-app camshot
+- Edit user's profile and avatar
+- Admin, WL, and MD can edit songlist
+- Recording link added
 - Sequencer link added
 - MT link added
 - Comments section added 
-- User now can see the whole team and routine schedules
+- User can see the whole team and routine schedules
 - Add multiple position
 - View schedule by tapping the cardview
-- Edit songlist
 - View members by ascending
 - Schedule notes added
 - Notification width corrected
