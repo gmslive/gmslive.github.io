@@ -5,8 +5,6 @@
 #### 1.0
 - Initial release
 #### 2.0
-- All the reliable features are included
-#### 2.1
 - Shepard role added
 - Important links added
 - In-App camshot
