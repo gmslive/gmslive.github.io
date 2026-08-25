@@ -20,6 +20,18 @@
 - View members by ascending
 - Schedule notes added
 - Notification width corrected
+#### 2.1
+- Penyesuaian tampilan kartu panel untuk admin
+- Admin bisa edit dan disable profil semua user
+- Ekspor jadwal dan evaluasi dapat dipilih per ibadah
+- Pencarian semua item (nama ibadah, angggota yang bertugas, songlist)
+- Kirim notifikasi ke email untuk segera mengisi evaluasi 1 jam setelah ibadah selesai
+- Pilihan sertakan songlist pada Export Jadwal PAW
+- Pilihan posisisi untuk diperbantukan ke poisi atau departemen lain
+- Filter Tahun dan Bulan saat Share ke WhatsApp
+- Tap user untuk melihat jadwal
+#### 2.2
+- Send all notifications via WhatsApp (next update)
 
 ### Developer:
 Bamz/PAW Team
