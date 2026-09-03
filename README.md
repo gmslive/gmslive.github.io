@@ -31,7 +31,20 @@
 - Filter Tahun dan Bulan saat Share ke WhatsApp
 - Tap user untuk melihat jadwal
 #### 2.2
-- Send all notifications via WhatsApp (next update)
+- Send all notifications via WhatsApp (done)
+- Aktivasi tombol back:  Daftar Tim PAW, Jadwal Rutin, Tautan Penting
+- Kunci portrait mode
+- Notifikasi pesan baru di jadwal dengan mention
+- Salin songlist dari jadwal lain
+- filter tahun, bulan dan minggu aktif
+- Trainee tidak bisa melakukan assign sendiri
+- Kategorisasi jabatan pada dropdown assign dan list member
+### 2.3 (next update)
+- Kiirm notifikasi ke koordinator ibadah (jika diperlukan)
+- Fix iOS storage
+- Fix assign terkadang bisa hilang
+- PWA launcher from main index
+- Registrasi mandiri anggota baru
 
 ### Developer:
 Bamz/PAW Team
