@@ -39,7 +39,7 @@
 - filter tahun, bulan dan minggu aktif
 - Trainee tidak bisa melakukan assign sendiri
 - Kategorisasi jabatan pada dropdown assign dan list member
-### 2.3 (next update)
+#### 2.3 (next update)
 - Kiirm notifikasi ke koordinator ibadah (jika diperlukan)
 - Fix iOS storage
 - Fix assign terkadang bisa hilang
