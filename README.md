@@ -39,7 +39,7 @@
 - filter tahun, bulan dan minggu aktif
 - Trainee tidak bisa melakukan assign sendiri
 - Kategorisasi jabatan pada dropdown assign dan list member
-#### 2.2
+#### 2.3
 - Fix week appereance
 - Send notifications to admin while editing songmap and songlist
 - Reorder songlist
