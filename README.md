@@ -39,7 +39,15 @@
 - filter tahun, bulan dan minggu aktif
 - Trainee tidak bisa melakukan assign sendiri
 - Kategorisasi jabatan pada dropdown assign dan list member
-#### 2.3 (next update)
+#### 2.2
+- Fix week appereance
+- Send notifications to admin while editing songmap and songlist
+- Reorder songlist
+- Added: alternative record link
+- Show all assigned user including those who did not complete the evaluation
+- Separated record link modal
+- Autoclosed schedules
+#### 2.4 (next update)
 - Kiirm notifikasi ke koordinator ibadah (jika diperlukan)
 - Fix iOS storage
 - Fix assign terkadang bisa hilang
