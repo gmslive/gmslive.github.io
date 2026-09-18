@@ -139,7 +139,7 @@
             <div class="flex justify-between items-center p-4 bg-gradient-to-b from-black/80 to-transparent absolute top-0 w-full z-10">
                 <h3 class="text-white font-bold text-sm drop-shadow-md">{{ previewModal.title }}</h3>
                 <div class="flex space-x-2">
-                    <a v-if="!previewModal.hideExternalLink" :href="previewModal.type === 'pdf' ? getIframePreviewUrl(previewModal.url) : previewModal.url" target="_blank" rel="noopener noreferrer" class="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20 hover:bg-white/20 transition">
+                    <a v-if="!previewModal.hideExternalLink" :href="previewModal.type === 'pdf' ? getIframePreviewUrl(previewModal.url) : previewModal.url" target="_blank" class="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20 hover:bg-white/20 transition">
                         <i class="ph ph-arrow-square-out text-xl"></i>
                     </a>
                     <button @click="previewModal.show = false" class="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20 hover:bg-white/20 transition"><i class="ph ph-x text-xl"></i></button>
@@ -579,11 +579,11 @@
                         
                         <!-- Menampilkan Tombol Tonton Rekaman Utama dan Alternatif -->
                         <div class="flex flex-wrap gap-2 mt-3">
-                            <a v-if="sched.recording_url" :href="sched.recording_url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 text-xs text-emerald-400 bg-emerald-500/20 px-3 py-1.5 rounded-lg border border-emerald-500/30 hover:bg-emerald-500/30 transition shadow-glow-wa">
+                            <a v-if="sched.recording_url" :href="sched.recording_url" target="_blank" class="inline-flex items-center space-x-2 text-xs text-emerald-400 bg-emerald-500/20 px-3 py-1.5 rounded-lg border border-emerald-500/30 hover:bg-emerald-500/30 transition shadow-glow-wa">
                                 <i class="ph-fill ph-video-camera text-base"></i>
                                 <span>Tonton Rekaman (Utama)</span>
                             </a>
-                            <a v-if="sched.recording_alt_url" :href="sched.recording_alt_url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 text-xs text-accent bg-accent/20 px-3 py-1.5 rounded-lg border border-accent/30 hover:bg-accent/30 transition shadow-glow">
+                            <a v-if="sched.recording_alt_url" :href="sched.recording_alt_url" target="_blank" class="inline-flex items-center space-x-2 text-xs text-accent bg-accent/20 px-3 py-1.5 rounded-lg border border-accent/30 hover:bg-accent/30 transition shadow-glow">
                                 <i class="ph-fill ph-monitor-play text-base"></i>
                                 <span>Tonton Rekaman (Alternatif)</span>
                             </a>
@@ -956,7 +956,7 @@
                                 <div>
                                     <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Link Sequencer</label>
                                     <input type="url" v-model="modalLinks.sequencer_url" :readonly="!isAssignedAsWL(currentSonglistSchedule) || currentSonglistSchedule?.status === 'closed'" placeholder="https://..." class="w-full bg-canvas border border-white/5 text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-primary read-only:opacity-50">
-                                    <a v-if="modalLinks.sequencer_url" :href="modalLinks.sequencer_url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-xs text-accent mt-2 hover:text-white transition">
+                                    <a v-if="modalLinks.sequencer_url" :href="modalLinks.sequencer_url" target="_blank" class="inline-flex items-center space-x-1 text-xs text-accent mt-2 hover:text-white transition">
                                         <i class="ph ph-link text-sm"></i> <span>Buka Link Sequencer</span>
                                     </a>
                                 </div>
@@ -966,7 +966,7 @@
                                         <input type="text" v-model="modalLinks.ministry_song_title" :readonly="!isAssignedAsWL(currentSonglistSchedule) || currentSonglistSchedule?.status === 'closed'" placeholder="Judul Lagu" class="w-full bg-canvas border border-white/5 text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-primary read-only:opacity-50">
                                         <input type="url" v-model="modalLinks.ministry_youtube_url" :readonly="!isAssignedAsWL(currentSonglistSchedule) || currentSonglistSchedule?.status === 'closed'" placeholder="Link Referensi" class="w-full bg-canvas border border-white/5 text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-primary read-only:opacity-50">
                                     </div>
-                                    <a v-if="modalLinks.ministry_youtube_url" :href="modalLinks.ministry_youtube_url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-xs text-rose-400 mt-2 hover:text-rose-300 transition">
+                                    <a v-if="modalLinks.ministry_youtube_url" :href="modalLinks.ministry_youtube_url" target="_blank" class="inline-flex items-center space-x-1 text-xs text-rose-400 mt-2 hover:text-rose-300 transition">
                                         <i class="ph-fill ph-youtube-logo text-sm"></i> <span>Putar Ministry Time</span>
                                     </a>
                                 </div>
@@ -1046,7 +1046,7 @@
                                                 <span v-if="song.singer" class="mr-2"><i class="ph-fill ph-microphone-stage text-slate-500"></i> {{ song.singer }}</span>
                                                 <span v-if="song.creator"><i class="ph-fill ph-pen-nib text-slate-500"></i> {{ song.creator }}</span>
                                             </p>
-                                            <a v-if="song.youtube" :href="song.youtube" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-xs text-rose-400 mt-3 bg-rose-500/10 px-2 py-1 rounded-lg hover:bg-rose-500/20 transition">
+                                            <a v-if="song.youtube" :href="song.youtube" target="_blank" class="inline-flex items-center space-x-1 text-xs text-rose-400 mt-3 bg-rose-500/10 px-2 py-1 rounded-lg hover:bg-rose-500/20 transition">
                                                 <i class="ph-fill ph-youtube-logo text-lg"></i>
                                                 <span>Putar Referensi</span>
                                             </a>
@@ -1417,7 +1417,7 @@
 
                     <div class="space-y-3">
                         <div v-for="link in linksList" :key="link.id" class="glass-panel p-4 rounded-2xl flex justify-between items-center group relative overflow-hidden">
-                            <a :href="link.url" target="_blank" rel="noopener noreferrer" class="flex-1 min-w-0 pr-4 block">
+                            <a :href="link.url" target="_blank" class="flex-1 min-w-0 pr-4 block">
                                 <h4 class="font-bold text-white text-base truncate flex items-center"><i class="ph-fill ph-link mr-2 text-accent"></i>{{ link.title }}</h4>
                                 <p class="text-xs text-slate-400 truncate mt-1">{{ link.url }}</p>
                             </a>
@@ -2278,23 +2278,16 @@
         window.serverCall = (action, data) => {
             return new Promise((resolve, reject) => {
                 if (!navigator.onLine) { reject("Koneksi internet terputus."); return; }
-                const token = StorageHelper.get('gms_token'); // Divalidasi ulang di server pada setiap panggilan
                 fetch(GAS_WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action, data, token })
+                    body: JSON.stringify({ action, data })
                 })
                     .then(res => res.text())
                     .then(res => {
                         const parsed = JSON.parse(res);
-                        if (parsed.status === 'success') {
-                            resolve(parsed.data);
-                        } else {
-                            if (parsed.authInvalid && typeof window.forceLogout === 'function') {
-                                window.forceLogout();
-                            }
-                            reject(parsed.message);
-                        }
+                        if (parsed.status === 'success') resolve(parsed.data);
+                        else reject(parsed.message);
                     })
                     .catch(err => reject(err.message || String(err)));
             });
@@ -3232,7 +3225,6 @@
                     const res = await window.serverCall('AUTH_LOGIN', loginForm.value);
                     currentUser.value = res.user;
                     StorageHelper.set('gms_session', JSON.stringify(res.user));
-                    StorageHelper.set('gms_token', res.token);
                     isLoggedIn.value = true;
                     await loadMasterData();
                 } catch (e) { showToast('Error: ' + e); } finally { globalLoading.value = false; }
@@ -3240,15 +3232,10 @@
             
             const handleLogout = () => {
                 StorageHelper.remove('gms_session');
-                StorageHelper.remove('gms_token');
                 isLoggedIn.value = false;
                 currentUser.value = null;
                 showProfileMenu.value = false;
                 loginForm.value = {username:'', password:''};
-            };
-            window.forceLogout = () => {
-                handleLogout();
-                showToast('Sesi Anda telah berakhir. Silakan login ulang.');
             };
             
             const refreshData = async () => {
