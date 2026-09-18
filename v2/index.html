@@ -2278,16 +2278,23 @@
         window.serverCall = (action, data) => {
             return new Promise((resolve, reject) => {
                 if (!navigator.onLine) { reject("Koneksi internet terputus."); return; }
+                const token = StorageHelper.get('gms_token'); // Divalidasi ulang di server pada setiap panggilan
                 fetch(GAS_WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action, data })
+                    body: JSON.stringify({ action, data, token })
                 })
                     .then(res => res.text())
                     .then(res => {
                         const parsed = JSON.parse(res);
-                        if (parsed.status === 'success') resolve(parsed.data);
-                        else reject(parsed.message);
+                        if (parsed.status === 'success') {
+                            resolve(parsed.data);
+                        } else {
+                            if (parsed.authInvalid && typeof window.forceLogout === 'function') {
+                                window.forceLogout();
+                            }
+                            reject(parsed.message);
+                        }
                     })
                     .catch(err => reject(err.message || String(err)));
             });
@@ -3225,6 +3232,7 @@
                     const res = await window.serverCall('AUTH_LOGIN', loginForm.value);
                     currentUser.value = res.user;
                     StorageHelper.set('gms_session', JSON.stringify(res.user));
+                    StorageHelper.set('gms_token', res.token);
                     isLoggedIn.value = true;
                     await loadMasterData();
                 } catch (e) { showToast('Error: ' + e); } finally { globalLoading.value = false; }
@@ -3232,10 +3240,15 @@
             
             const handleLogout = () => {
                 StorageHelper.remove('gms_session');
+                StorageHelper.remove('gms_token');
                 isLoggedIn.value = false;
                 currentUser.value = null;
                 showProfileMenu.value = false;
                 loginForm.value = {username:'', password:''};
+            };
+            window.forceLogout = () => {
+                handleLogout();
+                showToast('Sesi Anda telah berakhir. Silakan login ulang.');
             };
             
             const refreshData = async () => {
